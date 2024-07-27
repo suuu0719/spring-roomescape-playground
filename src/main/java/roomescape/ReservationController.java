@@ -1,5 +1,6 @@
 package roomescape;
 
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +24,6 @@ public class ReservationController {
     private List<Reservation> reservations = new ArrayList<>();
     private final AtomicLong counter = new AtomicLong();
 
-    public ReservationController() {
-        // 초기 데이터
-        reservations.add(new Reservation(counter.incrementAndGet(), "브라운", "2023-01-01", "10:00"));
-        reservations.add(new Reservation(counter.incrementAndGet(), "브라운", "2023-01-02", "11:00"));
-    }
-
 
     @GetMapping("/")
     public String home(Model model) {
@@ -36,12 +32,8 @@ public class ReservationController {
 
     @PostMapping("/reservations")
     @ResponseBody
-    public ResponseEntity<Reservation> addReservation(@RequestBody ReservationDto request) {
+    public ResponseEntity<Reservation> addReservation(@RequestBody @Valid ReservationDto request) {
         Reservation reservation = new Reservation(counter.incrementAndGet(), request.name, request.date, request.time);
-        if (reservation.name.isEmpty() || reservation.date.isEmpty()|| reservation.time.isEmpty()
-        || request.name == null || request.date == null || request.time == null) {
-            throw new NotFoundReservationException("Reservation not found");
-        }
         reservations.add(reservation);
         return ResponseEntity.status(HttpStatus.CREATED).location(URI.create("/reservations/"+reservation.getId())).body(reservation);
     }
@@ -71,6 +63,11 @@ public class ReservationController {
 
     @ExceptionHandler(NotFoundReservationException.class)
     public ResponseEntity<String> handleException(NotFoundReservationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleException(MethodArgumentNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
