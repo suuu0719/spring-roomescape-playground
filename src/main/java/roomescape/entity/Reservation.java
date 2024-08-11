@@ -1,10 +1,7 @@
 package roomescape.entity;
 
-import org.springframework.data.annotation.Id;
-
 public final class Reservation {
 
-    @Id
     private Long id;
     private String name;
     private String date;
@@ -36,4 +33,5 @@ public final class Reservation {
     public void setTime(String time) {
         this.time = time;
     }
+
 }
