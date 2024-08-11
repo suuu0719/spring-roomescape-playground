@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 public class ReservationCreateRequestDto {
 
     @NotBlank
-    public String name;
+    private final String name;
     @NotBlank
-    public String date;
+    private final String date;
     @NotBlank
-    public String time;
+    private final String time;
 
     public ReservationCreateRequestDto(String name, String date, String time) {
         this.name = name;
@@ -19,5 +19,13 @@ public class ReservationCreateRequestDto {
 
     public String getTime() {
         return time;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDate() {
+        return date;
     }
 }
